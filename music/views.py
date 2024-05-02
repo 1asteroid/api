@@ -3,6 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Artist, Albom, Songs
 from .serializers import ArtistSerializer, AlbomSerializer, SongSerializer
+from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
 
 
 class LandingPageAPIView(APIView):
@@ -13,12 +15,61 @@ class LandingPageAPIView(APIView):
         return Response(data={"message: 'Post request this is'"})
 
 
+# artist
+
 class ArtistAPIView(APIView):
     def get(self, request):
         artists = Artist.objects.all()
         serializers = ArtistSerializer(artists, many=True)
         return Response(data=serializers.data)
 
+    def post(self, request):
+        artist = Artist()
+        serializer = ArtistSerializer(instance=artist, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=status.HTTP_201_CREATED)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class ArtistDetailsAPIView(APIView):
+    def get(self, request, id):
+        try:
+            artist = Artist.objects.get(id=id)
+            serializer = ArtistSerializer(artist)
+            return Response(data=serializer.data)
+        except:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def patch(self, request, id):
+        artist = Artist.objects.get(id=id)
+        serializer = ArtistSerializer(instance=artist, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return Response(data=serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, id):
+        artist = Artist.objects.get(id=id)
+        serializer = ArtistSerializer(instance=artist, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return Response(data=serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, id):
+        artist = Artist.objects.get(id=id)
+        artist.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# albom
 
 class AlbomAPIView(APIView):
     def get(self, request):
@@ -26,10 +77,54 @@ class AlbomAPIView(APIView):
         serializers = AlbomSerializer(alboms, many=True)
         return Response(data=serializers.data)
 
+    def post(self, request):
+        albom = Albom()
+        serializer = AlbomSerializer(instance=albom, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=status.HTTP_201_CREATED)
 
-class SongAPIView(APIView):
-    def get(self, request):
-        songs = Songs.objects.all()
-        serializers = SongSerializer(songs, many=True)
-        return Response(data=serializers.data)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
+class AlbomDetailAPIView(APIView):
+    def get(self, request, id):
+        try:
+            albom = Albom.objects.get(id=id)
+            serializer = AlbomSerializer(albom)
+            return Response(data=serializer.data)
+        except:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def patch(self, request, id):
+        albom = Albom.objects.get(id=id)
+        serializer = AlbomSerializer(instance=albom, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return Response(data=serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, id):
+        albom = Albom.objects.get(id=id)
+        serializer = AlbomSerializer(instance=albom, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return Response(data=serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, id):
+        albom = Albom.objects.get(id=id)
+        albom.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# songs with viewset
+
+class SongAPIViewSet(ModelViewSet):
+    queryset = Songs.objects.all()
+    serializer_class = SongSerializer

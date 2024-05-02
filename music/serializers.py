@@ -10,7 +10,7 @@ class ArtistSerializer(serializers.ModelSerializer):
 
 class AlbomSerializer(serializers.ModelSerializer):
 
-    artist = ArtistSerializer()
+    artist = ArtistSerializer(read_only=True)
 
     class Meta:
         model = Albom
@@ -19,7 +19,7 @@ class AlbomSerializer(serializers.ModelSerializer):
 
 class SongSerializer(serializers.ModelSerializer):
 
-    albom = AlbomSerializer()
+    albom = AlbomSerializer(read_only=True)
 
     class Meta:
         model = Songs
